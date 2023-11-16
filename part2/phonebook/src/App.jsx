@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import Input from './components/Input'
@@ -10,6 +11,26 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
+
+  const hook = () => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('promise fulfilled')
+        setAllPersons(response.data)
+      })
+  }
+  
+  useEffect(hook, [])
+
+  // ON FIRST RENDER
+  // App component is first rendered, and "render 0 persons" is logged
+  // After the first render useEffect causes another render, [] as second parameter causes 
+  // the effect to only be run along with the first render of the component
+  // hook is subsequently executed and ends with setAllPersons which causes a final rerender of the App component
+  // "render 4 persons" is logged and the below return at the bottom of the App component renders 4 persons
+  console.log('render', allPersons.length, 'persons')
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
