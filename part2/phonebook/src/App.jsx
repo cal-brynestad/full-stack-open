@@ -77,8 +77,6 @@ const App = () => {
     if (confirmDelete) {
       console.log(`deleting person of id ${idToDelete}`)
 
-      // move this to code block below?
-      // if responseData is deleted person, use responseData.id in filter to create new array and then setAllPersons?
       const newPersons = allPersons.filter(person => person.id !== idToDelete)
 
       personService
