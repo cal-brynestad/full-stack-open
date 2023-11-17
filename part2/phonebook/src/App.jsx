@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import PersonForm from './components/PersonForm'
-import Persons from './components/Persons'
+import Person from './components/Person'
 import Input from './components/Input'
+import personService from './services/persons'
 
 const App = () => {
   const [allPersons, setAllPersons] = useState([]) 
@@ -14,11 +15,10 @@ const App = () => {
 
   const hook = () => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setAllPersons(response.data)
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setAllPersons(initialPersons)
       })
   }
   
@@ -31,6 +31,50 @@ const App = () => {
   // hook is subsequently executed and ends with setAllPersons which causes a final rerender of the App component
   // "render 4 persons" is logged and the below return at the bottom of the App component renders 4 persons
   console.log('render', allPersons.length, 'persons')
+
+  const addPerson = (event) => {
+    event.preventDefault()
+
+    const duplicate = allPersons.some(person => person.name === newName)
+
+    if(duplicate) {
+      alert(`${newName} is already added to phonebook`)
+    }
+
+    else {
+      const personObject = {
+        name: newName,
+        number: newNumber,
+      }
+
+      personService
+        .create(personObject)
+        .then(returnedPerson => {
+          setAllPersons(allPersons.concat(returnedPerson))
+          setShowAll(true)
+          setNewName('')
+          setNewNumber('')
+        })
+    }
+  }
+
+  const deletePersonOf = (idToDelete, name) => {
+    const confirmDelete = window.confirm(`Delete ${name}?`)
+
+    if (confirmDelete) {
+      console.log(`deleting person of id ${idToDelete}`)
+
+      const newPersons = allPersons.filter(person => person.id !== idToDelete)
+
+      personService
+        .deleteEntry(idToDelete)
+        .then(responseData => {
+          console.log(responseData)
+          setAllPersons(newPersons)
+          setShowAll(true)
+        })
+    }
+  }
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
@@ -49,29 +93,6 @@ const App = () => {
     
     setFilteredPersons(newFilteredPersons)
     setShowAll(false)
-  }
-
-  const addPerson = (event) => {
-    event.preventDefault()
-
-    const duplicate = allPersons.some(person => person.name === newName)
-
-    if(duplicate) {
-      alert(`${newName} is already added to phonebook`)
-    }
-
-    else {
-      const personObject = {
-        name: newName,
-        number: newNumber,
-        id: allPersons.length + 1,
-      }
-  
-      setAllPersons(allPersons.concat(personObject))
-      setShowAll(true)
-      setNewName('')
-      setNewNumber('')
-    }
   }
 
   const personsToShow = showAll
@@ -100,7 +121,12 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons persons={personsToShow}/>
+      {personsToShow.map(person =>
+        <Person 
+          key={person.id} 
+          person={person} 
+          deletePerson={() => deletePersonOf(person.id, person.name)}/>
+      )} 
 
     </div>
   )
