@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import PersonForm from './components/PersonForm'
 import Person from './components/Person'
 import Input from './components/Input'
@@ -38,7 +37,21 @@ const App = () => {
     const duplicate = allPersons.some(person => person.name === newName)
 
     if(duplicate) {
-      alert(`${newName} is already added to phonebook`)
+      const confirmChange = window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)
+
+      if (confirmChange) {
+        const person = allPersons.find(p => p.name === newName)
+        const changedPerson = { ...person, number: newNumber }
+
+        personService
+          .editEntry(changedPerson.id, changedPerson)
+          .then(returnedPerson => {
+            setAllPersons(allPersons.map(person => person.id !== returnedPerson.id ? person : returnedPerson))
+            setShowAll(true)
+            setNewName('')
+            setNewNumber('')
+          })
+      }
     }
 
     else {
@@ -64,6 +77,8 @@ const App = () => {
     if (confirmDelete) {
       console.log(`deleting person of id ${idToDelete}`)
 
+      // move this to code block below?
+      // if responseData is deleted person, use responseData.id in filter to create new array and then setAllPersons?
       const newPersons = allPersons.filter(person => person.id !== idToDelete)
 
       personService
@@ -110,7 +125,7 @@ const App = () => {
       <PersonForm
         formProps={{
           type: "submit",
-          text: "Submit",
+          text: "add",
           onSubmit: addPerson,
           newName: newName,
           newNumber: newNumber,
