@@ -12,14 +12,15 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
   const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
-  const Notification = ({ message }) => {
+  const Notification = ({ message, className }) => {
     if (message === null) {
       return null
     }
   
     return (
-      <div className='success'>
+      <div className={className}>
         {message}
       </div>
     )
@@ -70,6 +71,18 @@ const App = () => {
             setTimeout(() => {
               setSuccessMessage(null)
             }, 5000)
+          })
+          .catch(error => {
+            setErrorMessage(
+              `Information of ${person.name} has already been removed from server`
+            )
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
+
+            setAllPersons(allPersons.filter(p => p.name !== person.name))
+            setNewName('')
+            setNewNumber('')
           })
       }
     }
@@ -143,7 +156,8 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
 
-      <Notification message={successMessage} />
+      <Notification message={successMessage} className={"success"} />
+      <Notification message={errorMessage} className={"error"} />
 
       <Input text={"filter shown with:"} value={newFilter} onChange={handleFilterChange}/>
 

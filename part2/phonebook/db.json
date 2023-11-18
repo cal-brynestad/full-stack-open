@@ -6,29 +6,9 @@
       "id": 2
     },
     {
-      "name": "bob",
-      "number": "432",
-      "id": 6
-    },
-    {
       "name": "bob lazar",
       "number": "654",
       "id": 8
-    },
-    {
-      "name": "cal",
-      "number": "999",
-      "id": 9
-    },
-    {
-      "name": "bobby",
-      "number": "",
-      "id": 10
-    },
-    {
-      "name": "lizzie",
-      "number": "",
-      "id": 11
     }
   ]
 }
