@@ -34,7 +34,6 @@ const App = () => {
         setAllPersons(initialPersons)
       })
   }
-  
   useEffect(hook, [])
 
   // ON FIRST RENDER
