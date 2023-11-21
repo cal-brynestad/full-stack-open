@@ -1,5 +1,5 @@
-import CountryDisplay from './CountryDisplay'
-import Country from './Country'
+import FullCountryDisplay from './FullCountryDisplay'
+import CountryListElement from './CountryListElement'
 
 
 const DisplayChoice = ( {countries, showThisCountry} ) => {
@@ -11,7 +11,7 @@ const DisplayChoice = ( {countries, showThisCountry} ) => {
 
             {(countries.length <= 10 && countries.length > 1) && (
                 countries.map(country => 
-                <Country 
+                <CountryListElement 
                     key={country.name.common}
                     country={country}
                     showCountry={() => showThisCountry( country )}/>
@@ -19,7 +19,7 @@ const DisplayChoice = ( {countries, showThisCountry} ) => {
             )}
 
             {countries.length === 1 && (
-                <CountryDisplay country={countries[0]}/>
+                <FullCountryDisplay country={countries[0]}/>
             )}
 
             {countries.length === 0 && (

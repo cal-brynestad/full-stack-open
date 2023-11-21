@@ -1,4 +1,4 @@
-const Country = ({ country, showCountry }) => {
+const CountryListElement = ({ country, showCountry }) => {
     console.log(country)
     return (
         <div>
@@ -8,4 +8,4 @@ const Country = ({ country, showCountry }) => {
     )
 }
 
-export default Country
+export default CountryListElement
