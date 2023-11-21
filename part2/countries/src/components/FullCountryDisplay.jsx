@@ -9,17 +9,20 @@ const FullCountryDisplay = ( {country} ) => {
     const [image, setImage] = useState(null);
     console.log(country)
 
+    const api_key = import.meta.env.VITE_SOME_KEY
+    // variable api_key now has the value set in startup
+
     const languages = Object.values(country.languages).map((value, index) => (
         <li key={index}>{value}</li>
     ))
 
     const getWeather = () => {
         countryService
-            .getCoordinates(country.capital, 1)
+            .getCoordinates(country.capital, 1, api_key)
             .then(response => {
                 console.log(response[0])
                 countryService
-                    .getWeather(response[0].lat, response[0].lon)
+                    .getWeather(response[0].lat, response[0].lon, api_key)
                     .then(response => {
                         console.log(response.current)
                         setWeather(response.current)
