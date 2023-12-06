@@ -1,11 +1,13 @@
 const express = require('express')
 const morgan = require('morgan')
-
+const cors = require('cors')
 const app = express()
 
 morgan.token('postData', (request) => JSON.stringify(request.body))
 
 app.use(express.json())
+app.use(express.static('dist'))
+app.use(cors())
 app.use(morgan('tiny', { skip: (req) => req.method === 'POST' }))
 app.use(
     morgan(':method :url :status :res[content-length] - :response-time ms :postData', {
@@ -106,7 +108,16 @@ app.post('/api/persons', (request, response) => {
     response.json(person)
 })
 
-const PORT = 3001
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+}
+
+// Middleware functions have to be taken into use before routes if we want them to be executed before the route event handlers are called
+// Because we want the unknownEndpoint middleware to only be called if the endpoint doesn't exist, we take it into use at the end of the file
+// This is a middleware function that is only called if no route handles the HTTP request
+app.use(unknownEndpoint)
+
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
