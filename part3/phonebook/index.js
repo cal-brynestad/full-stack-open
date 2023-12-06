@@ -1,13 +1,28 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
+const Person = require('./models/person')
+
+const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
+}
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
 
 morgan.token('postData', (request) => JSON.stringify(request.body))
 
-app.use(express.json())
-app.use(express.static('dist'))
 app.use(cors())
+app.use(express.json())
+app.use(requestLogger)
+app.use(express.static('dist'))
 app.use(morgan('tiny', { skip: (req) => req.method === 'POST' }))
 app.use(
     morgan(':method :url :status :res[content-length] - :response-time ms :postData', {
@@ -15,44 +30,27 @@ app.use(
     })
   )
 
-let persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
+  app.get('/', (request, response) => {
+    response.send('<h1>Phonebook</h1>')
+  })
 
 // The first request parameter contains all of the information of the HTTP request, and the second response parameter is used to define how the request is responded to
 app.get('/api/persons', (request, response) => {
-    console.log(request.headers)
-    response.json(persons)
+    Person.find({}).then(persons => {
+      response.json(persons)
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
     console.log(request.headers)
-    const id = Number(request.params.id)
-    const person = persons.find(person => person.id === id)
-    if (person) {
+
+    Person.findById(request.params.id).then(person => {
+      if (person) {
         response.json(person)
       } else {
         response.status(404).end()
       }
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -67,7 +65,7 @@ app.get('/info', (request, response) => {
     console.log(request.headers)
     const currentDate = new Date().toUTCString();
 
-    response.send(`Phonebook has info for ${persons.length} people <br><br> ${currentDate}`)
+    response.send(`Phonebook has info for NEEDS TO BE IMPLEMENTED people <br><br> ${currentDate}`)
 })
 
 const generateId = () => {
@@ -77,13 +75,6 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response) => {
     const body = request.body
-
-    const duplicate = persons.some(person => person.name === body.name)
-    if (duplicate) {
-        return response.status(400).json({ 
-            error: `${body.name} already exists in the phonebook`
-          })
-    }
   
     if (!body.name) {
       return response.status(400).json({ 
@@ -97,27 +88,22 @@ app.post('/api/persons', (request, response) => {
         })
       }
   
-    const person = {
-      id: generateId(),
+    const person = new Person({
       name: body.name,
       number: body.number,
-    }
+    })
   
-    persons = persons.concat(person)
-  
-    response.json(person)
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
 })
-
-const unknownEndpoint = (request, response) => {
-    response.status(404).send({ error: 'unknown endpoint' })
-}
 
 // Middleware functions have to be taken into use before routes if we want them to be executed before the route event handlers are called
 // Because we want the unknownEndpoint middleware to only be called if the endpoint doesn't exist, we take it into use at the end of the file
 // This is a middleware function that is only called if no route handles the HTTP request
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })

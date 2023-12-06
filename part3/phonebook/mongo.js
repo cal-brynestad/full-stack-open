@@ -16,7 +16,6 @@ mongoose.set('strictQuery',false)
 mongoose.connect(url)
 
 const personSchema = new mongoose.Schema({
-  id: Number,
   name: String,
   number: String,
 })
@@ -34,7 +33,6 @@ if (process.argv.length === 3) {
 
 else if (process.argv.length === 5) {
     const person = new Person({
-        id: Math.floor(Math.random() * 10000),
         name: name,
         number: number,
       })
