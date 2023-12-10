@@ -38,13 +38,13 @@ app.use(requestLogger)
 app.use(express.static('dist'))
 app.use(morgan('tiny', { skip: (req) => req.method === 'POST' }))
 app.use(
-    morgan(':method :url :status :res[content-length] - :response-time ms :postData', {
+  morgan(':method :url :status :res[content-length] - :response-time ms :postData', {
     skip: (req) => req.method !== 'POST',
-    })
-  )
+  })
+)
 
 app.get('/info', (request, response) => {
-  const currentDate = new Date().toUTCString();
+  const currentDate = new Date().toUTCString()
 
   Person.countDocuments({}).then(count => {
     response.send(`Phonebook has info for ${count} people <br><br> ${currentDate}`)
@@ -53,25 +53,25 @@ app.get('/info', (request, response) => {
 
 // The first request parameter contains all of the information of the HTTP request, and the second response parameter is used to define how the request is responded to
 app.get('/api/persons', (request, response) => {
-    Person.find({}).then(persons => {
-      response.json(persons)
-    })
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
   if (!body.name) {
-    return response.status(400).json({ 
-      error: 'name missing' 
+    return response.status(400).json({
+      error: 'name missing'
     })
   }
 
   if (!body.number) {
-      return response.status(400).json({ 
-        error: 'number missing' 
-      })
-    }
+    return response.status(400).json({
+      error: 'number missing'
+    })
+  }
 
   const person = new Person({
     name: body.name,
@@ -100,6 +100,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then(result => {
+      console.log(result)
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -128,5 +129,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })
