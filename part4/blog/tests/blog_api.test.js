@@ -34,21 +34,40 @@ test('blogs are returned as json', async () => {
     .expect('Content-Type', /application\/json/)
 })
 
-test('all blogs are returned', async () => {
+test('correct number of blogs are returned', async () => {
   const response = await api.get('/api/blogs')
-
   expect(response.body).toHaveLength(initialBlogs.length)
 })
 
+test('all blogs unique identifier property is named id', async () => {
+  const response = await api.get('/api/blogs')
+  const contents = response.body[0]
+  expect(contents.id).toBeDefined()
+})
 
-test('a specific blog is within the returned notes', async () => {
+test('a valid blog can be added', async () => {
+  const newBlog = {
+    title: 'React is important',
+    author: 'Prof',
+    url: 'react.com',
+    likes: 10
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
   const response = await api.get('/api/blogs')
 
-
   const contents = response.body.map(r => r.title)
+
+  expect(response.body).toHaveLength(initialBlogs.length + 1)
   expect(contents).toContain(
-    'leetcode is easy'
+    'React is important'
   )
+
 })
 
 afterAll(async () => {
