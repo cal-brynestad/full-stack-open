@@ -67,7 +67,23 @@ test('a valid blog can be added', async () => {
   expect(contents).toContain(
     'React is important'
   )
+})
 
+test('if the likes property is missing from the request, it will default to the value 0', async () => {
+  const newBlog = {
+    title: 'Blog request has no likes property',
+    author: 'Cally',
+    url: 'blah.com',
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+
+  const response = await api.get('/api/blogs')
+
+  expect(response.body[2].likes).toEqual(0)
 })
 
 afterAll(async () => {
